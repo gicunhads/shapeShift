@@ -101,6 +101,10 @@ class ShapeshiftCanvasGUI:
                 if piece:
                     success, place_msg = self.game.place_drawn_piece(row, col)
                     self.info.config(text=place_msg)
+                    if success:
+                        win, reason = self.game.check_win()
+                        if win:
+                            self.info.config(text=f"Game Over! {reason}")
                 else:
                     self.info.config(text=draw_msg)
                 self.update_display()
@@ -109,18 +113,19 @@ class ShapeshiftCanvasGUI:
             return
 
         if self.action == 'draw':
-            # Place drawn piece
             if self.drawn_piece:
                 success, msg = self.game.place_drawn_piece(row, col)
                 self.info.config(text=msg)
                 if success:
+                    win, reason = self.game.check_win()
+                    if win:
+                        self.info.config(text=f"Game Over! {reason}")
                     self.action = None
                     self.drawn_piece = None
                 self.update_display()
             return
 
         if self.action == 'move':
-            # Select or move
             if self.selected is None:
                 if self.game.board.grid[row][col] is None:
                     self.info.config(text="No piece here to select.")
@@ -128,22 +133,20 @@ class ShapeshiftCanvasGUI:
                     self.selected = (row, col)
                     self.info.config(text=f"Selected ({row},{col}). Click destination.")
                 return
-            # Perform move
             fr, fc = self.selected
             success, msg = self.game.move_piece(fr, fc, row, col)
             self.info.config(text=msg)
             if success:
+                win, reason = self.game.check_win()
+                if win:
+                    self.info.config(text=f"Game Over! {reason}")
+                    self.canvas.unbind("<Button-1>")
                 self.action = None
                 self.selected = None
-            win, reason = self.game.check_win()
-            if win:
-                self.info.config(text=f"Game Over! {reason}")
-                self.canvas.unbind("<Button-1>")
             self.update_display()
             return
 
     def draw_cell_empty(self, r, c):
-        # Check if cell is empty
         return self.game.board.grid[r][c] is None
 
 if __name__ == '__main__':

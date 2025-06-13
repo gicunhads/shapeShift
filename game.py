@@ -61,7 +61,8 @@ class Game:
 
     def check_win(self):
         """
-        Check the board for any win condition.
+        Check the board for any win condition of 4 in-line pieces.
         Returns (True, reason) or (False, "").
         """
-        return self.board.check_win()
+        # Detect lines of 4 matching attributes
+        return self.board.check_win(N=4)
