@@ -10,6 +10,7 @@ class Game:
         # Pool of 8 unique pieces: each Color × Shape × Size
         self.pool = self._generate_pool()
 
+
         # Holds the piece drawn but not yet placed
         self.drawn_piece = None
 
@@ -18,7 +19,7 @@ class Game:
         pool = [
             Piece(color, shape, size)
             for color in (Color.BLACK, Color.WHITE)
-            for shape in (Shape.HEART, Shape.TRIANGLE)
+            for shape in (Shape.HEART, Shape.SQUARE)
             for size in (Size.BIG, Size.SMALL)
         ]
         random.shuffle(pool)
@@ -59,7 +60,8 @@ class Game:
         success = self.board.move_piece(fr, fc, tr, tc)
         return (True, "Piece moved.") if success else (False, "Invalid move.")
 
-    def check_win(self):
+    def check_win(self, N=4):
+       
         """
         Check the board for any win condition of 4 in-line pieces.
         Returns (True, reason) or (False, "").

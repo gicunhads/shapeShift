@@ -68,29 +68,58 @@ class Board:
             print(" | ".join([str(p) if p else " . " for p in row]))
 
     def check_win(self, N=3):
-        lines = []
+        """
+        First, look for any straight line (row, col, diag) of length N
+        where all pieces share one attribute (shape, size, or color).
+        If none found, you can then do any global-count checks in Game.check_win.
+        Returns (True, reason) or (False, "").
+        """
+        size = self.size
 
-        # Rows and cols
-        for i in range(self.size):
-            lines.append(self.grid[i])  # row
-            lines.append([self.grid[r][i] for r in range(self.size)])  # col
+        def segment_win(segment):
+            if len(segment) < N or any(p is None for p in segment):
+                return False, None
+            # Shape
+            if all(p.shape == segment[0].shape for p in segment):
+                return True, f"Win by shape {segment[0].shape.value}"
+            # Size
+            if all(p.size == segment[0].size for p in segment):
+                return True, f"Win by size {segment[0].size.value}"
+            # Color
+            if all(p.color == segment[0].color for p in segment):
+                return True, f"Win by color {segment[0].color.value}"
+            return False, None
 
-        # Diagonals
-        for r in range(self.size - N + 1):
-            diag1 = [self.grid[r + i][i] for i in range(self.size - r)]
-            diag2 = [self.grid[i][r + i] for i in range(self.size - r)]
-            lines.append(diag1)
-            lines.append(diag2)
+        # Check rows
+        for r in range(size):
+            for c_start in range(size - N + 1):
+                seg = [self.grid[r][c_start + i] for i in range(N)]
+                ok, reason = segment_win(seg)
+                if ok:
+                    return True, reason
 
-        for line in lines:
-            for start in range(len(line) - N + 1):
-                segment = line[start:start + N]
-                if None in segment:
-                    continue
-                if all(p.shape == segment[0].shape for p in segment):
-                    return True, f"Win by shape {segment[0].shape.value}"
-                if all(p.size == segment[0].size for p in segment):
-                    return True, f"Win by size {segment[0].size.value}"
-                if all(p.color == segment[0].color for p in segment):
-                    return True, f"Win by color {segment[0].color.value}"
+        # Check columns
+        for c in range(size):
+            for r_start in range(size - N + 1):
+                seg = [self.grid[r_start + i][c] for i in range(N)]
+                ok, reason = segment_win(seg)
+                if ok:
+                    return True, reason
+
+        # Check main diagonals (top-left → bottom-right)
+        for r_start in range(size - N + 1):
+            for c_start in range(size - N + 1):
+                seg = [self.grid[r_start + i][c_start + i] for i in range(N)]
+                ok, reason = segment_win(seg)
+                if ok:
+                    return True, reason
+
+        # Check anti-diagonals (bottom-left → top-right)
+        for r_start in range(N - 1, size):
+            for c_start in range(size - N + 1):
+                seg = [self.grid[r_start - i][c_start + i] for i in range(N)]
+                ok, reason = segment_win(seg)
+                if ok:
+                    return True, reason
+
         return False, ""

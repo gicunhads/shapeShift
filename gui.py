@@ -5,6 +5,8 @@ from pieces import Color, Shape, Size
 CELL_SIZE = 80  # pixels per cell
 BOARD_SIZE = 5  # 5x5 grid
 
+
+
 # Emoji mapping
 def piece_to_emoji(piece):
     if piece is None:
@@ -28,7 +30,7 @@ class ShapeshiftCanvasGUI:
         self.action = None       # 'draw', 'move', or None
         self.drawn_piece = None  # holds drawn but unplaced piece
         self.selected = None     # (row, col) of piece to move
-
+        self.game_over = False
         # Info label
         self.info = tk.Label(master, text="Click 'Draw Piece' or 'Move Piece' to begin.")
         self.info.pack(pady=5)
@@ -57,8 +59,9 @@ class ShapeshiftCanvasGUI:
             self.canvas.create_line(x, 0, x, BOARD_SIZE * CELL_SIZE, tags="grid")
             self.canvas.create_line(0, y, BOARD_SIZE * CELL_SIZE, y, tags="grid")
 
+
     def update_display(self):
-        # Draw pieces
+    # Draw pieces
         self.canvas.delete("piece")
         for r in range(BOARD_SIZE):
             for c in range(BOARD_SIZE):
@@ -68,9 +71,19 @@ class ShapeshiftCanvasGUI:
                     cx = c * CELL_SIZE + CELL_SIZE/2
                     cy = r * CELL_SIZE + CELL_SIZE/2
                     self.canvas.create_text(cx, cy, text=em, font=("Arial", 32), tags="piece")
-        # Update info if no ongoing action
-        if self.action is None:
+
+        # Only overwrite the info label if the game isn't already over
+        if not self.game_over and self.action is None:
             self.info.config(text=f"Pieces left: {len(self.game.pool)}")
+
+        # Immediately check for win and lock the board if needed
+        if not self.game_over:
+            win, reason = self.game.check_win()
+            if win:
+                self.game_over = True
+                self.info.config(text=f"Game Over! {reason}")
+                self.canvas.unbind("<Button-1>")
+
 
     def start_draw(self):
         piece, msg = self.game.start_draw()

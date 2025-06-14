@@ -6,7 +6,7 @@ class Color(Enum):
 
 class Shape(Enum):
     HEART = 'Heart'
-    TRIANGLE = 'Triangle'
+    SQUARE = 'Square'
 
 class Size(Enum):
     BIG = 'Big'
