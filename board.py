@@ -46,7 +46,7 @@ class Board:
         if piece.shape == Shape.HEART:
             if abs(dr) != abs(dc):
                 return False
-        elif piece.shape == Shape.TRIANGLE:
+        elif piece.shape == Shape.SQUARE:
             if dr != 0 and dc != 0:
                 return False
         else:
