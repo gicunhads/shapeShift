@@ -109,6 +109,15 @@ class ShapeshiftCanvasGUI:
         self.update_display()
 
     def start_move(self):
+        # Check if there's at least one piece on the board
+        any_piece = any(
+            self.game.board.grid[r][c] is not None
+            for r in range(BOARD_SIZE)
+            for c in range(BOARD_SIZE)
+        )
+        if not any_piece:
+            self.info.config(text="No pieces on board to move. Draw first.")
+            return
         self.action = 'move'
         self.selected = None
         self.info.config(text="Move mode: select a piece to move.")
