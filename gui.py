@@ -25,25 +25,40 @@ def piece_to_emoji(piece):
 class ShapeshiftCanvasGUI:
     def __init__(self, master):
         self.master = master
-        self.master.title("Shapeshift - Canvas GUI")
+        self.master.title("Shapeshift")
+        baby_pink = "#FFB6C1"
+        self.master.configure(bg=baby_pink)
         self.game = Game()
         self.action = None       # 'draw', 'move', or None
         self.drawn_piece = None  # holds drawn but unplaced piece
         self.selected = None     # (row, col) of piece to move
         self.game_over = False
         # Info label
-        self.info = tk.Label(master, text="Click 'Draw Piece' or 'Move Piece' to begin.")
+        self.info = tk.Label(master,
+                             text="Click 'Draw Piece' or 'Move Piece' to begin.",
+                             bg=baby_pink)
         self.info.pack(pady=5)
 
-        # Control buttons frame
-        ctrl = tk.Frame(master)
+        ctrl = tk.Frame(master, bg=baby_pink)
         ctrl.pack()
-        tk.Button(ctrl, text="Draw Piece", command=self.start_draw).pack(side="left", padx=5)
-        tk.Button(ctrl, text="Move Piece", command=self.start_move).pack(side="left", padx=5)
-        tk.Button(ctrl, text="Restart", command=self.restart_game).pack(side="left", padx=5)
+
+        # All buttons get a pink border (bd) and solid relief:
+        btn_opts = {
+            "bg": "white",
+            "bd": 2,
+            "relief": "solid",
+            "highlightthickness": 2,
+            "highlightbackground": baby_pink
+        }
+        tk.Button(ctrl, text="Draw Piece", command=self.start_draw, **btn_opts).pack(side="left", padx=5)
+        tk.Button(ctrl, text="Move Piece", command=self.start_move, **btn_opts).pack(side="left", padx=5)
+        tk.Button(ctrl, text="Restart", command=self.restart_game, **btn_opts).pack(side="left", padx=5)
         # Canvas for board grid
         canvas_size = CELL_SIZE * BOARD_SIZE
-        self.canvas = tk.Canvas(master, width=canvas_size, height=canvas_size)
+        self.canvas = tk.Canvas(master, width=canvas_size, height=canvas_size, bg=baby_pink, bd=2,
+                                relief="solid",
+                                highlightthickness=2,
+                                highlightbackground=baby_pink)
         self.canvas.pack(pady=10)
         self.canvas.bind("<Button-1>", self.on_click)
         
@@ -164,8 +179,16 @@ class ShapeshiftCanvasGUI:
             success, msg = self.game.move_piece(fr, fc, row, col)
             self.info.config(text=msg)
             if success:
-                self.action = None
-                self.selected = None
+            # Immediately check for a win
+                win, reason = self.game.check_win()
+                if win:
+                    self.game_over = True
+                    self.info.config(text=f"Game Over! {reason}")
+                    self.canvas.unbind("<Button-1>")
+                    self.update_display()
+                    return
+            self.selected = None
+            self.action = None
             self.update_display()
             return
 

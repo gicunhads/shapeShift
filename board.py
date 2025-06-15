@@ -77,19 +77,19 @@ class Board:
         size = self.size
 
         def segment_win(segment):
+            # all non-None and all share one attribute
             if len(segment) < N or any(p is None for p in segment):
-                return False, None
-            # Shape
+                return False, ""
+            # shape
             if all(p.shape == segment[0].shape for p in segment):
-                return True, f"Win by shape {segment[0].shape.value}"
-            # Size
-            if all(p.size == segment[0].size for p in segment):
-                return True, f"Win by size {segment[0].size.value}"
-            # Color
+                return True, f"♥︎ Win by shape {segment[0].shape.value}"
+            # size
+            if all(p.size  == segment[0].size  for p in segment):
+                return True, f"⬛️ Win by size {segment[0].size.value}"
+            # color
             if all(p.color == segment[0].color for p in segment):
-                return True, f"Win by color {segment[0].color.value}"
-            return False, None
-
+                return True, f"{'🖤' if segment[0].color==Color.BLACK else '🤍'} Win by color {segment[0].color.value}"
+            return False, ""
         # Check rows
         for r in range(size):
             for c_start in range(size - N + 1):
